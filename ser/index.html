@@ -3,54 +3,75 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Тренажер ser</title>
+  <title>Тренажер ser — склади речення</title>
   <style>
     :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
     body { margin: 0; padding: 24px; background: #f6f7fb; color: #111; }
-    .app { max-width: 820px; margin: 0 auto; background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 8px 28px rgba(0,0,0,.08); }
-    h1 { font-size: 18px; margin: 0 0 12px; }
+    .app { max-width: 980px; margin: 0 auto; background: #fff; border-radius: 16px; padding: 20px; box-shadow: 0 8px 28px rgba(0,0,0,.08); }
+    h1 { font-size: 18px; margin: 0 0 10px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .pill { display: inline-block; font-size: 12px; padding: 4px 10px; border-radius: 999px; background: #f1f2f8; }
+
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+    .counter {
+      border: 1px solid #e7eaf5; background: #fafbff; border-radius: 12px;
+      padding: 10px 12px; font-weight: 900;
+    }
+    .counter span { opacity: .7; font-weight: 800; margin-right: 6px; }
+
     .ua { padding: 12px 14px; background: #f0f3ff; border-radius: 12px; margin-bottom: 12px; }
     .ua .label { font-size: 12px; opacity: .75; margin-bottom: 6px; }
-    .ua .text { font-size: 18px; font-weight: 600; }
+    .ua .text { font-size: 18px; font-weight: 800; }
+
+    .sentenceBox { padding: 12px 14px; background: #fafbff; border: 1px solid #e7eaf5; border-radius: 12px; }
+    .sentenceLabel { font-size: 12px; opacity: .75; margin-bottom: 6px; }
+    .sentence { font-size: 18px; font-weight: 900; letter-spacing: .2px; }
+
     .progress { font-size: 12px; opacity: .75; margin: 10px 0 14px; }
+
+    .stepTitle { margin: 14px 0 6px; font-size: 14px; font-weight: 900; }
     .row { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0 16px; }
     button.choice{
       border: 1px solid #d7dbe7; background: #fff; border-radius: 12px;
-      padding: 10px 12px; cursor: pointer; font-weight: 600;
+      padding: 10px 12px; cursor: pointer; font-weight: 800;
       transition: transform .02s ease, background .2s ease, border-color .2s ease;
+      user-select: none;
     }
     button.choice:hover { background: #f7f9ff; border-color: #b9c3ff; }
     button.choice:active { transform: scale(0.99); }
-    button.choice.selected { background: #e8edff; border-color: #7c8cff; }
-    .sentenceBox { padding: 12px 14px; background: #fafbff; border: 1px solid #e7eaf5; border-radius: 12px; }
-    .sentenceLabel { font-size: 12px; opacity: .75; margin-bottom: 6px; }
-    .sentence { font-size: 18px; font-weight: 700; letter-spacing: .2px; }
-    .feedback { margin-top: 12px; min-height: 28px; font-weight: 700; }
+
+    .feedback { margin-top: 12px; min-height: 28px; font-weight: 900; }
     .ok { color: #0a7a2f; }
     .bad { color: #b00020; }
-    .controls { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+
+    .controls { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; align-items: center; }
     .smallbtn{
       border: 1px solid #d7dbe7; background: #fff; border-radius: 12px;
-      padding: 10px 12px; cursor: pointer; font-weight: 600;
+      padding: 10px 12px; cursor: pointer; font-weight: 900;
     }
     .smallbtn[disabled] { opacity: .5; cursor: not-allowed; }
-    .hint { font-size: 12px; opacity: .75; margin-top: 10px; line-height: 1.4; }
-    .stepTitle { margin: 12px 0 6px; font-size: 14px; font-weight: 800; }
-    .pill { display: inline-block; font-size: 12px; padding: 4px 10px; border-radius: 999px; background: #f1f2f8; }
+
     .answerBox{
       margin-top: 10px; padding: 10px 12px; border-radius: 12px;
       background: #fff8e6; border: 1px solid #ffe2a8; display: none;
     }
     .answerBox .t { font-size: 12px; opacity: .75; margin-bottom: 4px; }
-    .answerBox .a { font-weight: 800; }
+    .answerBox .a { font-weight: 900; }
+
+    .hint { font-size: 12px; opacity: .75; margin-top: 10px; line-height: 1.4; }
+    code.k { font-weight: 800; background: #f1f2f8; padding: 2px 6px; border-radius: 8px; }
   </style>
 </head>
 <body>
   <div class="app">
-    <h1>Тренажер дієслова <span class="pill">ser</span></h1>
+    <h1>Тренажер <span class="pill">ser</span> — склади речення</h1>
+
+    <div class="topbar">
+      <div class="progress" id="progress">Крок 1/—</div>
+      <div class="counter"><span>Лічильник:</span><span id="score">0</span></div>
+    </div>
 
     <div class="ua">
-      <div class="label">Речення українською</div>
+      <div class="label">Речення українською (переклади іспанською)</div>
       <div id="uaText" class="text">—</div>
     </div>
 
@@ -58,8 +79,6 @@
       <div class="sentenceLabel">Твоє речення іспанською</div>
       <div id="esSentence" class="sentence">—</div>
     </div>
-
-    <div class="progress" id="progress">Крок 1/3</div>
 
     <div id="stepArea"></div>
 
@@ -78,100 +97,700 @@
     </div>
 
     <div class="hint">
-      Як працює: обери займенник → форму <b>ser</b> → слово. Якщо відповідь правильна — натисни <b>Далі</b>.
+      Лічильник: +1 за кожне правильно складене речення (відразу після правильного складання), і скидається до 0 при будь-якій помилці.
     </div>
   </div>
 
 <script>
-  // 1) Список прикметників
-  const adjectives = [
-    "alto","bajo","grande","pequeño","joven","viejo","nuevo","antiguo","inteligente","tonto","amable","simpático","antipático",
-    "serio","gracioso","trabajador","perezoso","responsable","irresponsable","honesto","deshonesto","fuerte","débil","rico","pobre",
-    "famoso","desconocido","importante","interesante","aburrido","fácil","difícil","posible","imposible","correcto","incorrecto",
-    "verdadero","falso","necesario","innecesario","seguro","peligroso","tranquilo","nervioso","orgulloso","tímido","abierto","cerrado",
-    "puntual","impuntual","moderno","tradicional","rápido","lento","limpio","sucio","caro","barato","completo","incompleto","perfecto",
-    "imperfecto","normal","extraño","lógico","ilógico","humano","natural","artificial","público","privado","principal","secundario",
-    "común","raro","útil","inútil","justo","injusto","claro","oscuro","sencillo","complicado","correcto","exacto","aproximado",
-    "permanente","temporal","obligatorio","opcional","ideal","real","social","cultural","político","económico","profesional","personal",
-    "académico","oficial"
+  // ==========================================================
+  // 1) ВХІДНІ ДАНІ: ваші пари (ES / UA)
+  // ==========================================================
+  const PAIRS = [
+    ["Los profesores son inteligentes.", "Вчителі є розумними."],
+    ["Los estudiantes son jóvenes.", "Студенти є молодими."],
+    ["Los médicos son responsables.", "Лікарі є відповідальними."],
+    ["Los amigos son simpáticos.", "Друзі є симпатичними."],
+    ["Las amigas son amables.", "Подруги є привітними."],
+    ["Los colegas son profesionales.", "Колеги є професійними."],
+    ["Los vecinos son tranquilos.", "Сусіди є спокійними."],
+    ["Los padres son responsables.", "Батьки є відповідальними."],
+    ["Los hermanos son altos.", "Брати є високими."],
+    ["Las hermanas son trabajadoras.", "Сестри є працьовитими."],
+    ["Pedro y Laura son inteligentes.", "Педро і Лаура є розумними."],
+    ["Miguel y Juan son serios.", "Мігель і Хуан є серйозними."],
+    ["Carlos y Ana son responsables.", "Карлос і Ана є відповідальними."],
+    ["María y José son amables.", "Марія і Хосе є привітними."],
+    ["Pablo y Sofía son jóvenes.", "Пабло і Софія є молодими."],
+    ["Diego y Elena son simpáticos.", "Дієго і Елена є симпатичними."],
+    ["Javier y Carmen son puntuales.", "Хав’єр і Кармен є пунктуальними."],
+    ["Alejandro es trabajador.", "Алехандро є працьовитим."],
+    ["Isabel es inteligente.", "Ісабель є розумною."],
+    ["Roberto es honesto.", "Роберто є чесним."],
+    ["Beatriz es responsable.", "Беатріс є відповідальною."],
+    ["Manuel es fuerte.", "Мануель є сильним."],
+    ["Mónica es amable.", "Моніка є привітною."],
+    ["Enrique es serio.", "Енріке є серйозним."],
+    ["Victoria es puntual.", "Вікторія є пунктуальною."],
+    ["Ricardo es profesional.", "Рікардо є професійним."],
+    ["Gabriela es simpática.", "Габріела є симпатичною."],
+    ["Francisco es trabajador.", "Франсіско є працьовитим."],
+    ["Natalia es responsable.", "Наталія є відповідальною."],
+    ["Andrés es inteligente.", "Андрес є розумним."],
+    ["Isabela es joven.", "Ісабела є молодою."],
+    ["Mario es alto.", "Маріо є високим."],
+    ["Claudia es organizada.", "Клаудія є організованою."],
+    ["Hugo es fuerte.", "Уго є сильним."],
+    ["Marta es amable.", "Марта є привітною."],
+    ["El chico es alto.", "Хлопець є високим."],
+    ["La chica es joven.", "Дівчина є молодою."],
+    ["El niño es pequeño.", "Хлопчик є маленьким."],
+    ["La niña es simpática.", "Дівчинка є симпатичною."],
+    ["El hermano es serio.", "Брат є серйозним."],
+    ["La hermana es responsable.", "Сестра є відповідальною."],
+    ["La madre es amable.", "Мати є привітною."],
+    ["El padre es trabajador.", "Батько є працьовитим."],
+    ["El médico es profesional.", "Лікар є професійним."],
+    ["El profesor es inteligente.", "Вчитель є розумним."],
+    ["El estudiante es joven.", "Студент є молодим."],
+    ["La amiga es honesta.", "Подруга є чесною."],
+    ["El amigo es simpático.", "Друг є симпатичним."],
+    ["Yo soy responsable.", "Я є відповідальним / відповідальною."],
+    ["Yo soy trabajador.", "Я є працьовитим / працьовитою."],
+    ["Tú eres inteligente.", "Ти є розумним / розумною."],
+    ["Tú eres amable.", "Ти є привітним / привітною."],
+    ["Nosotros somos estudiantes.", "Ми є студентами."],
+    ["Nosotros somos responsables.", "Ми є відповідальними."],
+    ["Vosotros sois puntuales.", "Ви є пунктуальними."],
+    ["Vosotros sois trabajadores.", "Ви є працьовитими."],
+    ["Ellos son altos.", "Вони (чол.) є високими."],
+    ["Ellas son simpáticas.", "Вони (жін.) є симпатичними."],
+	["Marta es trabajadora.", "Марта є працьовитою."],
+	["El chico es responsable.", "Хлопець є відповідальним."],
+	["La chica es puntual.", "Дівчина є пунктуальною."],
+	["El niño es tranquilo.", "Хлопчик є спокійним."],
+	["La niña es amable.", "Дівчинка є привітною."],
+	["El hermano es honesto.", "Брат є чесним."],
+	["La hermana es organizada.", "Сестра є організованою."],
+	["La madre es paciente.", "Мати є терплячою."],
+	["El padre es atento.", "Батько є уважним."],
+	["El médico es competente.", "Лікар є компетентним."],
+	["El profesor es claro.", "Вчитель є зрозумілим."],
+	["El estudiante es responsable.", "Студент є відповідальним."],
+	["La amiga es sincera.", "Подруга є щирою."],
+	["El amigo es honesto.", "Друг є чесним."],
+	["Yo soy estudiante.", "Я є студентом / студенткою."],
+	["Yo soy profesor.", "Я є вчителем / викладачем."],
+	["Tú eres médico.", "Ти є лікарем."],
+	["Tú eres amigo.", "Ти є другом."],
+	["Nosotros somos hermanos.", "Ми є братами."],
+	["Nosotros somos vecinos.", "Ми є сусідами."],
+	["Vosotros sois amigos.", "Ви є друзями."],
+	["Vosotros sois colegas.", "Ви є колегами."],
+	["Ellos son estudiantes.", "Вони (чол.) є студентами."],
+	["Ellas son profesoras.", "Вони (жін.) є вчительками."],
+	["Los profesores son claros.", "Вчителі є зрозумілими."],
+	["Los estudiantes son atentos.", "Студенти є уважними."],
+	["Los médicos son precisos.", "Лікарі є точними."],
+	["Los amigos son fieles.", "Друзі є вірними."],
+	["Las amigas son cercanas.", "Подруги є близькими."],
+	["Los colegas son organizados.", "Колеги є організованими."],
+	["Los vecinos son educados.", "Сусіди є вихованими."],
+	["Los padres son comprensivos.", "Батьки є розуміючими."],
+	["Los hermanos son responsables.", "Брати є відповідальними."],
+	["Las hermanas son solidarias.", "Сестри є солідарними."],
+	["Pedro y Laura son atentos.", "Педро і Лаура є уважними."],
+	["Miguel y Juan son fiables.", "Мігель і Хуан є надійними."],
+	["Carlos y Ana son cercanos.", "Карлос і Ана є близькими."],
+	["María y José son puntuales.", "Марія і Хосе є пунктуальними."],
+	["Pablo y Sofía son responsables.", "Пабло і Софія є відповідальними."],
+	["Diego y Elena son atentos.", "Дієго і Елена є уважними."],
+	["Javier y Carmen son claros.", "Хав’єр і Кармен є зрозумілими."],
+	["Alejandro es atento.", "Алехандро є уважним."],
+	["Isabel es puntual.", "Ісабель є пунктуальною."],
+	["Roberto es fiable.", "Роберто є надійним."],
+	["Beatriz es clara.", "Беатріс є зрозумілою."],
+	["Manuel es atento.", "Мануель є уважним."],
+	["Mónica es responsable.", "Моніка є відповідальною."],
+	["Enrique es claro.", "Енріке є зрозумілим."],
+	["Victoria es fiable.", "Вікторія є надійною."],
+	["Ricardo es atento.", "Рікардо є уважним."],
+	["Gabriela es clara.", "Габріела є зрозумілою."],
+	["Francisco es responsable.", "Франсіско є відповідальним."],
+	["Natalia es puntual.", "Наталія є пунктуальною."],
+	["Andrés es atento.", "Андрес є уважним."],
+	["Isabela es clara.", "Ісабела є зрозумілою."],
+	["Mario es fiable.", "Маріо є надійним."],
+	["Claudia es puntual.", "Клаудія є пунктуальною."],
+	["Hugo es atento.", "Уго є уважним."],
+	["Los profesores son importantes.", "Вчителі є важливими."],
+	["Los estudiantes son responsables.", "Студенти є відповідальними."],
+	["Los médicos son profesionales.", "Лікарі є професійними."],
+	["Los amigos son leales.", "Друзі є вірними."],
+	["Las amigas son simpáticas.", "Подруги є симпатичними."],
+	["Los colegas son eficientes.", "Колеги є ефективними."],
+	["Los vecinos son tranquilos.", "Сусіди є спокійними."],
+	["Los padres son justos.", "Батьки є справедливими."], 
+	["Los hermanos son fuertes.", "Брати є сильними."],
+	["Las hermanas son trabajadoras.", "Сестри є працьовитими."],
+	["Pedro y Laura son responsables.", "Педро і Лаура є відповідальними."],
+	["Miguel y Juan son altos.", "Мігель і Хуан є високими."],
+	["Carlos y Ana son honestos.", "Карлос і Ана є чесними."],
+	["María y José son trabajadores.", "Марія і Хосе є працьовитими."],
+	["Pablo y Sofía son jóvenes.", "Пабло і Софія є молодими."],
+	["Diego y Elena son amables.", "Дієго і Елена є привітними."],
+	["Javier y Carmen son puntuales.", "Хав’єр і Кармен є пунктуальними."],
+	["Alejandro es serio.", "Алехандро є серйозним."],
+	["Isabel es responsable.", "Ісабель є відповідальною."],
+	["Roberto es honesto.", "Роберто є чесним."],
+	["Beatriz es amable.", "Беатріс є привітною."],
+	["Manuel es fuerte.", "Мануель є сильним."],
+	["Mónica es inteligente.", "Моніка є розумною."],
+	["Enrique es puntual.", "Енріке є пунктуальним."],
+	["Victoria es profesional.", "Вікторія є професійною."],
+	["Ricardo es trabajador.", "Рікардо є працьовитим."],
+	["Gabriela es simpática.", "Габріела є симпатичною."],
+	["Francisco es responsable.", "Франсіско є відповідальним."],
+	["Natalia es seria.", "Наталія є серйозною."],
+	["Andrés es honesto.", "Андрес є чесним."],
+	["Isabela es joven.", "Ісабела є молодою."],
+	["Mario es alto.", "Маріо є високим."],
+	["Claudia es amable.", "Клаудія є привітною."],
+	["Hugo es fuerte.", "Уго є сильним."],
+	["Marta es responsable.", "Марта є відповідальною."],
+	["El chico es joven.", "Хлопець є молодим."],
+	["La chica es simpática.", "Дівчина є симпатичною."],
+	["El niño es pequeño.", "Хлопчик є маленьким."],
+	["La niña es amable.", "Дівчинка є привітною."],
+	["El hermano es serio.", "Брат є серйозним."],
+	["La hermana es responsable.", "Сестра є відповідальною."],
+	["La madre es amable.", "Мати є привітною."],
+	["El padre es trabajador.", "Батько є працьовитим."],
+	["El médico es profesional.", "Лікар є професійним."],
+	["El profesor es inteligente.", "Вчитель є розумним."],
+	["El estudiante es joven.", "Студент є молодим."],
+	["La amiga es honesta.", "Подруга є чесною."],
+	["El amigo es simpático.", "Друг є симпатичним."],
+	["Yo soy responsable.", "Я є відповідальним / відповідальною."],
+	["Yo soy trabajador.", "Я є працьовитим / працьовитою."],
+	["Tú eres inteligente.", "Ти є розумним / розумною."],
+	["Tú eres amable.", "Ти є привітним / привітною."],
+	["Nosotros somos responsables.", "Ми є відповідальними."],
+	["Nosotros somos estudiantes.", "Ми є студентами."],
+	["Vosotros sois puntuales.", "Ви є пунктуальними."],
+	["Vosotros sois trabajadores.", "Ви є працьовитими."],
+	["Ellos son altos.", "Вони (чол.) є високими."],
+	["Ellas son simpáticas.", "Вони (жін.) є симпатичними."],
+	["Marta es clara.", "Марта є зрозумілою."],
+	["El chico es atento.", "Хлопець є уважним."],
+	["La chica es responsable.", "Дівчина є відповідальною."],
+	["El niño es educado.", "Хлопчик є вихованим."],
+	["La niña es tranquila.", "Дівчинка є спокійною."],
+	["El hermano es fiable.", "Брат є надійним."],
+	["La hermana es clara.", "Сестра є зрозумілою."],
+	["La madre es atenta.", "Мати є уважною."],
+	["El padre es responsable.", "Батько є відповідальним."],
+	["El médico es claro.", "Лікар є зрозумілим."],
+	["El profesor es atento.", "Вчитель є уважним."],
+	["El estudiante es puntual.", "Студент є пунктуальним."],
+	["La amiga es responsable.", "Подруга є відповідальною."],
+	["El amigo es claro.", "Друг є зрозумілим."],
+	["Yo soy atento.", "Я є уважним / уважною."],
+	["Yo soy claro.", "Я є зрозумілим / зрозумілою."],
+	["Tú eres atento.", "Ти є уважним / уважною."],
+	["Tú eres claro.", "Ти є зрозумілим / зрозумілою."],
+
+	["Nosotros somos responsables.", "Ми є відповідальними."],
+	["Nosotros somos puntuales.", "Ми є пунктуальними."],
+	["Vosotros sois atentos.", "Ви є уважними."],
+	["Vosotros sois responsables.", "Ви є відповідальними."],
+	["Ellos son claros.", "Вони (чол.) є зрозумілими."],
+	["Ellas son atentas.", "Вони (жін.) є уважними."],
+	["Los profesores son atentos.", "Вчителі є уважними."],
+	["Los estudiantes son responsables.", "Студенти є відповідальними."],
+	["Los médicos son claros.", "Лікарі є зрозумілими."],
+	["Los amigos son atentos.", "Друзі є уважними."],
+	["Las amigas son responsables.", "Подруги є відповідальними."],
+	["Los colegas son claros.", "Колеги є зрозумілими."],
+	["Los vecinos son atentos.", "Сусіди є уважними."],
+	["Los padres son responsables.", "Батьки є відповідальними."],
+	["Los hermanos son claros.", "Брати є зрозумілими."],
+	["Las hermanas son atentas.", "Сестри є уважними."],
+	["Pedro y Laura son responsables.", "Педро і Лаура є відповідальними."],
+	["Miguel y Juan son claros.", "Мігель і Хуан є зрозумілими."],
+	["Carlos y Ana son atentos.", "Карлос і Ана є уважними."],
+	["María y José son responsables.", "Марія і Хосе є відповідальними."],
+	["Pablo y Sofía son claros.", "Пабло і Софія є зрозумілими."],
+	["Diego y Elena son responsables.", "Дієго і Елена є відповідальними."],
+	["Javier y Carmen son atentos.", "Хав’єр і Кармен є уважними."],
+	["Alejandro es claro.", "Алехандро є зрозумілим."],
+	["Isabel es atenta.", "Ісабель є уважною."],
+	["Roberto es responsable.", "Роберто є відповідальним."],
+	["Beatriz es clara.", "Беатріс є зрозумілою."],
+	["Manuel es atento.", "Мануель є уважним."],
+	["Mónica es responsable.", "Моніка є відповідальною."],
+	["Enrique es claro.", "Енріке є зрозумілим."],
+	["Victoria es atenta.", "Вікторія є уважною."],
+	["Ricardo es responsable.", "Рікардо є відповідальним."],
+	["Gabriela es clara.", "Габріела є зрозумілою."],
+	["Francisco es atento.", "Франсіско є уважним."],
+	["Natalia es responsable.", "Наталія є відповідальною."],
+	["Andrés es claro.", "Андрес є зрозумілим."],
+	["Isabela es atenta.", "Ісабела є уважною."],
+	["Mario es responsable.", "Маріо є відповідальним."],
+	["Claudia es clara.", "Клаудія є зрозумілою."],
+	["Hugo es atento.", "Уго є уважним."],
+	["El chico es claro.", "Хлопець є зрозумілим."],
+	["La chica es atenta.", "Дівчина є уважною."],
+	["El niño es responsable.", "Хлопчик є відповідальним."],
+	["La niña es clara.", "Дівчинка є зрозумілою."],
+	["El hermano es atento.", "Брат є уважним."],
+	["La hermana es responsable.", "Сестра є відповідальною."],
+	["La madre es clara.", "Мати є зрозумілою."],
+	["El padre es atento.", "Батько є уважним."],
+	["El médico es responsable.", "Лікар є відповідальним."],
+	["El profesor es claro.", "Вчитель є зрозумілим."],
+	["El estudiante es atento.", "Студент є уважним."],
+	["La amiga es clara.", "Подруга є зрозумілою."],
+	["El amigo es responsable.", "Друг є відповідальним."],
+	["Yo soy responsable.", "Я є відповідальним / відповідальною."],
+	["Yo soy puntual.", "Я є пунктуальним / пунктуальною."],
+	["Tú eres amable.", "Ти є привітним / привітною."],
+	["Tú eres inteligente.", "Ти є розумним / розумною."],
+	["Nosotros somos responsables.", "Ми є відповідальними."],
+	["Nosotros somos organizados.", "Ми є організованими."],
+	["Vosotros sois puntuales.", "Ви є пунктуальними."],
+	["Vosotros sois responsables.", "Ви є відповідальними."],
+	["Ellos son fuertes.", "Вони (чол.) є сильними."],
+	["Ellas son amables.", "Вони (жін.) є привітними."],
+	["Los profesores son claros.", "Вчителі є зрозумілими."],
+	["Los estudiantes son responsables.", "Студенти є відповідальними."],
+	["Los médicos son profesionales.", "Лікарі є професійними."],
+	["Los amigos son sinceros.", "Друзі є щирими."],
+	["Las amigas son responsables.", "Подруги є відповідальними."],
+	["Los colegas son puntuales.", "Колеги є пунктуальними."],
+	["Los vecinos son tranquilos.", "Сусіди є спокійними."],
+	["Los padres son atentos.", "Батьки є уважними."],
+	["Los hermanos son unidos.", "Брати є згуртованими."],
+	["Las hermanas son solidarias.", "Сестри є солідарними."],
+	["Pedro y Laura son responsables.", "Педро і Лаура є відповідальними."],
+	["Miguel y Juan son puntuales.", "Мігель і Хуан є пунктуальними."],
+	["Carlos y Ana son atentos.", "Карлос і Ана є уважними."],
+	["María y José son organizados.", "Марія і Хосе є організованими."],
+	["Pablo y Sofía son responsables.", "Пабло і Софія є відповідальними."],
+	["Diego y Elena son pacientes.", "Дієго і Елена є терплячими."],
+	["Javier y Carmen son claros.", "Хав’єр і Кармен є зрозумілими."],
+	["Alejandro es honesto.", "Алехандро є чесним."],
+	["Isabel es clara.", "Ісабель є зрозумілою."],
+	["Roberto es responsable.", "Роберто є відповідальним."],
+	["Beatriz es trabajadora.", "Беатріс є працьовитою."],
+	["Manuel es puntual.", "Мануель є пунктуальним."],
+	["Mónica es organizada.", "Моніка є організованою."],
+	["Enrique es claro.", "Енріке є зрозумілим."],
+	["Victoria es responsable.", "Вікторія є відповідальною."],
+	["Ricardo es atento.", "Рікардо є уважним."],
+	["Gabriela es puntual.", "Габріела є пунктуальною."],
+	["Francisco es trabajador.", "Франсіско є працьовитим."],
+	["Natalia es responsable.", "Наталія є відповідальною."],
+	["Andrés es puntual.", "Андрес є пунктуальним."],
+	["Isabela es clara.", "Ісабела є зрозумілою."],
+	["Mario es organizado.", "Маріо є організованим."],
+	["Claudia es puntual.", "Клаудія є пунктуальною."],
+	["Hugo es responsable.", "Уго є відповідальним."],
+	["Marta es clara.", "Марта є зрозумілою."],
+	["El chico es responsable.", "Хлопець є відповідальним."],
+	["La chica es puntual.", "Дівчина є пунктуальною."],
+	["El niño es tranquilo.", "Хлопчик є спокійним."],
+	["La niña es amable.", "Дівчинка є привітною."],
+	["El hermano es responsable.", "Брат є відповідальним."],
+	["La hermana es clara.", "Сестра є зрозумілою."],
+	["La madre es responsable.", "Мати є відповідальною."],
+	["El padre es claro.", "Батько є зрозумілим."],
+	["El médico es profesional.", "Лікар є професійним."],
+	["El profesor es responsable.", "Вчитель є відповідальним."],
+	["El estudiante es puntual.", "Студент є пунктуальним."],
+	["La amiga es clara.", "Подруга є зрозумілою."],
+	["El amigo es responsable.", "Друг є відповідальним."],
+	["Yo soy claro.", "Я є зрозумілим / зрозумілою."],
+	["Yo soy trabajador.", "Я є працьовитим / працьовитою."],
+	["Tú eres responsable.", "Ти є відповідальним / відповідальною."],
+	["Tú eres puntual.", "Ти є пунктуальним / пунктуальною."],
+	["Nosotros somos claros.", "Ми є зрозумілими."],
+	["Nosotros somos responsables.", "Ми є відповідальними."],
+	["Vosotros sois claros.", "Ви є зрозумілими."],
+	["Vosotros sois responsables.", "Ви є відповідальними."],
+	["Ellos son organizados.", "Вони (чол.) є організованими."],
+	["Ellas son responsables.", "Вони (жін.) є відповідальними."],
+	["Gabriela es puntual.", "Габріела є пунктуальною."],
+	["Francisco es claro.", "Франсіско є зрозумілим."],
+	["Natalia es responsable.", "Наталія є відповідальною."],
+	["Andrés es puntual.", "Андрес є пунктуальним."],
+	["Isabela es responsable.", "Ісабела є відповідальною."],
+	["Mario es puntual.", "Маріо є пунктуальним."],
+	["Claudia es clara.", "Клаудія є зрозумілою."],
+	["Hugo es responsable.", "Уго є відповідальним."],
+	["Marta es puntual.", "Марта є пунктуальною."],
+	["El chico es atento.", "Хлопець є уважним."],
+	["La chica es clara.", "Дівчина є зрозумілою."],
+	["El niño es responsable.", "Хлопчик є відповідальним."],
+	["La niña es puntual.", "Дівчинка є пунктуальною."],
+	["El hermano es claro.", "Брат є зрозумілим."],
+	["La hermana es puntual.", "Сестра є пунктуальною."],
+	["La madre es responsable.", "Мати є відповідальною."],
+	["El padre es puntual.", "Батько є пунктуальним."],
+	["El médico es responsable.", "Лікар є відповідальним."],
+	["El profesor es claro.", "Вчитель є зрозумілим."],
+	["El estudiante es puntual.", "Студент є пунктуальним."],
+	["La amiga es responsable.", "Подруга є відповідальною."],
+	["El amigo es puntual.", "Друг є пунктуальним."],
+	["Yo soy puntual.", "Я є пунктуальним / пунктуальною."],
+	["Yo soy responsable.", "Я є відповідальним / відповідальною."],
+	["Tú eres puntual.", "Ти є пунктуальним / пунктуальною."],
+	["Tú eres responsable.", "Ти є відповідальним / відповідальною."],
+	["Nosotros somos atentos.", "Ми є уважними."],
+	["Nosotros somos claros.", "Ми є зрозумілими."],
+	["Vosotros sois atentos.", "Ви є уважними."],
+	["Vosotros sois responsables.", "Ви є відповідальними."],
+	["Ellos son claros.", "Вони (чол.) є зрозумілими."],
+	["Ellas son responsables.", "Вони (жін.) є відповідальними."],
+	["Los profesores son atentos.", "Вчителі є уважними."],
+	["Los estudiantes son responsables.", "Студенти є відповідальними."],
+	["Los médicos son puntuales.", "Лікарі є пунктуальними."],
+	["Los amigos son claros.", "Друзі є зрозумілими."],
+	["Las amigas son responsables.", "Подруги є відповідальними."],
+	["Los colegas son puntuales.", "Колеги є пунктуальними."],
+	["Los vecinos son responsables.", "Сусіди є відповідальними."],
+	["Los padres son atentos.", "Батьки є уважними."],
+	["Los hermanos son claros.", "Брати є зрозумілими."],
+	["Las hermanas son responsables.", "Сестри є відповідальними."],
+	["Pedro y Laura son puntuales.", "Педро і Лаура є пунктуальними."],
+	["Miguel y Juan son claros.", "Мігель і Хуан є зрозумілими."],
+	["Carlos y Ana son responsables.", "Карлос і Ана є відповідальними."],
+	["María y José son puntuales.", "Марія і Хосе є пунктуальними."],
+	["Pablo y Sofía son claros.", "Пабло і Софія є зрозумілими."],
+	["Diego y Elena son responsables.", "Дієго і Елена є відповідальними."],
+	["Javier y Carmen son puntuales.", "Хав’єр і Кармен є пунктуальними."],
+	["Alejandro es puntual.", "Алехандро є пунктуальним."],
+	["Isabel es clara.", "Ісабель є зрозумілою."],
+	["Roberto es responsable.", "Роберто є відповідальним."],
+	["Beatriz es puntual.", "Беатріс є пунктуальною."],
+	["Manuel es claro.", "Мануель є зрозумілим."],
+	["Mónica es responsable.", "Моніка є відповідальною."],
+	["Enrique es puntual.", "Енріке є пунктуальним."],
+	["Victoria es responsable.", "Вікторія є відповідальною."],
+	["Ricardo es puntual.", "Рікардо є пунктуальним."],
+	["Gabriela es clara.", "Габріела є зрозумілою."],
+	["Francisco es responsable.", "Франсіско є відповідальним."],
+	["Natalia es puntual.", "Наталія є пунктуальною."],
+	["Andrés es responsable.", "Андрес є відповідальним."],
+	["Isabela es clara.", "Ісабела є зрозумілою."],
+	["Mario es responsable.", "Маріо є відповідальним."],
+	["Claudia es puntual.", "Клаудія є пунктуальною."],
+	["Hugo es claro.", "Уго є зрозумілим."],
+	["Marta es responsable.", "Марта є відповідальною."],
+	["El chico es puntual.", "Хлопець є пунктуальним."],
+	["La chica es clara.", "Дівчина є зрозумілою."],
+	["El niño es atento.", "Хлопчик є уважним."],
+	["La niña es responsable.", "Дівчинка є відповідальною."],
+	["El hermano es puntual.", "Брат є пунктуальним."],
+	["La hermana es clara.", "Сестра є зрозумілою."],
+	["La madre es puntual.", "Мати є пунктуальною."],
+	["El padre es claro.", "Батько є зрозумілим."],
+	["El médico es puntual.", "Лікар є пунктуальним."],
+	["El profesor es responsable.", "Вчитель є відповідальним."],
+	["El estudiante es claro.", "Студент є зрозумілим."],
+	["La amiga es puntual.", "Подруга є пунктуальною."],
+	["El amigo es responsable.", "Друг є відповідальним."],
+	["Yo soy atento.", "Я є уважним / уважною."],
+	["Yo soy claro.", "Я є зрозумілим / зрозумілою."],
+	["Tú eres atento.", "Ти є уважним / уважною."],
+	["Tú eres claro.", "Ти є зрозумілим / зрозумілою."],
+	["Nosotros somos responsables.", "Ми є відповідальними."],
+	["Nosotros somos puntuales.", "Ми є пунктуальними."],
+	["Vosotros sois responsables.", "Ви є відповідальними."],
+	["Vosotros sois puntuales.", "Ви є пунктуальними."],
+	["Ellos son atentos.", "Вони (чол.) є уважними."],
+	["Ellas son claras.", "Вони (жін.) є зрозумілими."],
+	["Los profesores son claros.", "Вчителі є зрозумілими."],
+	["Los estudiantes son atentos.", "Студенти є уважними."],
+	["Los médicos son responsables.", "Лікарі є відповідальними."],
+	["Los amigos son atentos.", "Друзі є уважними."],
+	["Las amigas son puntuales.", "Подруги є пунктуальними."],
+	["Los colegas son claros.", "Колеги є зрозумілими."],
+	["Los vecinos son responsables.", "Сусіди є відповідальними."],
+	["Los padres son puntuales.", "Батьки є пунктуальними."],
+	["Los hermanos son responsables.", "Брати є відповідальними."],
+	["Las hermanas son puntuales.", "Сестри є пунктуальними."],
+	["Los profesores son importantes.", "Вчителі є важливими."],
+	["Los estudiantes son jóvenes.", "Студенти є молодими."],
+	["Los médicos son necesarios.", "Лікарі є необхідними."],
+	["Los amigos son leales.", "Друзі є вірними."],
+	["Las amigas son amables.", "Подруги є привітними."],
+	["Los colegas son profesionales.", "Колеги є професійними."],
+	["Los vecinos son respetuosos.", "Сусіди є шанобливими."],
+	["Los padres son responsables.", "Батьки є відповідальними."],
+	["Los hermanos son altos.", "Брати є високими."],
+	["Las hermanas son inteligentes.", "Сестри є розумними."],
+	["Pedro y Laura son modernos.", "Педро і Лаура є сучасними."],
+	["Miguel y Juan son fuertes.", "Мігель і Хуан є сильними."],
+	["Carlos y Ana son abiertos.", "Карлос і Ана є відкритими."],
+	["María y José son honestos.", "Марія і Хосе є чесними."],
+	["Pablo y Sofía son simpáticos.", "Пабло і Софія є симпатичними."],
+	["Diego y Elena son tranquilos.", "Дієго і Елена є спокійними."],
+	["Javier y Carmen son puntuales.", "Хав’єр і Кармен є пунктуальними."],
+	["Alejandro es serio.", "Алехандро є серйозним."],
+	["Isabel es trabajadora.", "Ісабель є працьовитою."],
+	["Roberto es responsable.", "Роберто є відповідальним."],
+	["Beatriz es amable.", "Беатріс є привітною."],
+	["Manuel es fuerte.", "Мануель є сильним."],
+	["Mónica es inteligente.", "Моніка є розумною."],
+	["Enrique es puntual.", "Енріке є пунктуальним."],
+	["Victoria es profesional.", "Вікторія є професійною."],
+	["Ricardo es honesto.", "Рікардо є чесним."],
+	["Gabriela es simpática.", "Габріела є симпатичною."],
+	["Francisco es trabajador.", "Франсіско є працьовитим."],
+	["Natalia es responsable.", "Наталія є відповідальною."],
+	["Andrés es lógico.", "Андрес є логічним."],
+	["Isabela es abierta.", "Ісабела є відкритою."],
+	["Mario es alto.", "Маріо є високим."],
+	["Claudia es responsable.", "Клаудія є відповідальною."],
+	["Hugo es fuerte.", "Уго є сильним."],
+	["Marta es amable.", "Марта є привітною."],
+	["El chico es joven.", "Хлопець є молодим."],
+	["La chica es alta.", "Дівчина є високою."],
+	["El niño es pequeño.", "Хлопчик є маленьким."],
+	["La niña es simpática.", "Дівчинка є симпатичною."],
+	["El hermano es serio.", "Брат є серйозним."],
+	["La hermana es responsable.", "Сестра є відповідальною."],
+	["La madre es paciente.", "Мати є терплячою."],
+	["El padre es trabajador.", "Батько є працьовитим."],
+	["El médico es profesional.", "Лікар є професійним."],
+	["El profesor es claro.", "Вчитель є зрозумілим."],
+	["El estudiante es aplicado.", "Студент є старанним."],
+	["La amiga es honesta.", "Подруга є чесною."],
+	["El amigo es simpático.", "Друг є симпатичним."],
+	["Yo soy responsable.", "Я є відповідальним / відповідальною."],
+	["Yo soy puntual.", "Я є пунктуальним / пунктуальною."],
+	["Tú eres inteligente.", "Ти є розумним / розумною."],
+	["Tú eres amable.", "Ти є привітним / привітною."],
+	["Nosotros somos responsables.", "Ми є відповідальними."],
+	["Nosotros somos puntuales.", "Ми є пунктуальними."],
+	["Vosotros sois atentos.", "Ви є уважними."],
+	["Vosotros sois responsables.", "Ви є відповідальними."],
+	["Ellos son fuertes.", "Вони (чол.) є сильними."],
+	["Ellas son amables.", "Вони (жін.) є привітними."],
+	["Los profesores son claros.", "Вчителі є зрозумілими."],
+	["Los estudiantes son responsables.", "Студенти є відповідальними."],
+	["Los médicos son profesionales.", "Лікарі є професійними."],
+	["Los amigos son sinceros.", "Друзі є щирими."],
+	["Las amigas son responsables.", "Подруги є відповідальними."],
+	["Los colegas son puntuales.", "Колеги є пунктуальними."],
+	["Los vecinos son tranquilos.", "Сусіди є спокійними."],
+	["Los padres son atentos.", "Батьки є уважними."],
+	["Los hermanos son unidos.", "Брати є згуртованими."],
+	["Las hermanas son solidarias.", "Сестри є солідарними."],
+	["Pedro y Laura son responsables.", "Педро і Лаура є відповідальними."],
+	["Miguel y Juan son puntuales.", "Мігель і Хуан є пунктуальними."],
+	["Carlos y Ana son atentos.", "Карлос і Ана є уважними."],
+	["María y José son organizados.", "Марія і Хосе є організованими."],
+	["Pablo y Sofía son responsables.", "Пабло і Софія є відповідальними."],
+	["Diego y Elena son pacientes.", "Дієго і Елена є терплячими."],
+	["Javier y Carmen son claros.", "Хав’єр і Кармен є зрозумілими."],
+	["Alejandro es honesto.", "Алехандро є чесним."],
+	["Isabel es clara.", "Ісабель є зрозумілою."],
+	["Roberto es puntual.", "Роберто є пунктуальним."],
+	["Beatriz es trabajadora.", "Беатріс є працьовитою."],
+	["Manuel es responsable.", "Мануель є відповідальним."],
+	["Mónica es organizada.", "Моніка є організованою."],
+	["Enrique es claro.", "Енріке є зрозумілим."],
+	["Victoria es responsable.", "Вікторія є відповідальною."],
+	["Ricardo es atento.", "Рікардо є уважним."],
+	["Gabriela es puntual.", "Габріела є пунктуальною."],
+	["Francisco es profesional.", "Франсіско є професійним."],
+	["Natalia es honesta.", "Наталія є чесною."],
+	["Andrés es responsable.", "Андрес є відповідальним."],
+	["Isabela es puntual.", "Ісабела є пунктуальною."],
+	["Mario es organizado.", "Маріо є організованим."],
+	["Claudia es clara.", "Клаудія є зрозумілою."],
+	["Hugo es responsable.", "Уго є відповідальним."],
+	["Marta es puntual.", "Марта є пунктуальною."],
+	["El chico es atento.", "Хлопець є уважним."],
+	["La chica es responsable.", "Дівчина є відповідальною."],
+	["El niño es tranquilo.", "Хлопчик є спокійним."],
+	["La niña es amable.", "Дівчинка є привітною."],
+	["El hermano es fuerte.", "Брат є сильним."],
+	["La hermana es clara.", "Сестра є зрозумілою."],
+	["La madre es responsable.", "Мати є відповідальною."],
+	["El padre es claro.", "Батько є зрозумілим."],
+	["El médico es honesto.", "Лікар є чесним."],
+	["El profesor es puntual.", "Вчитель є пунктуальним."],
+	["El estudiante es responsable.", "Студент є відповідальним."],
+	["La amiga es clara.", "Подруга є зрозумілою."],
+	["El amigo es responsable.", "Друг є відповідальним."],
+	["Yo soy claro.", "Я є зрозумілим / зрозумілою."],
+	["Yo soy trabajador.", "Я є працьовитим / працьовитою."],
+	["Tú eres responsable.", "Ти є відповідальним / відповідальною."],
+	["Tú eres puntual.", "Ти є пунктуальним / пунктуальною."],
+	["Nosotros somos claros.", "Ми є зрозумілими."],
+	["Nosotros somos atentos.", "Ми є уважними."],
+	["Vosotros sois claros.", "Ви є зрозумілими."],
+	["Vosotros sois responsables.", "Ви є відповідальними."],
+	["Ellos son organizados.", "Вони (чол.) є організованими."],
+	["Ellas son responsables.", "Вони (жін.) є відповідальними."],
+	["Los profesores son responsables.", "Вчителі є відповідальними."],
+	["Los estudiantes son puntuales.", "Студенти є пунктуальними."],
+	["Los médicos son claros.", "Лікарі є зрозумілими."],
+	["Los amigos son responsables.", "Друзі є відповідальними."],
+	["Las amigas son puntuales.", "Подруги є пунктуальними."],
+	["Los colegas son responsables.", "Колеги є відповідальними."],
+	["Los vecinos son claros.", "Сусіди є зрозумілими."],
+	["Los padres son responsables.", "Батьки є відповідальними."],
+	["Los hermanos son atentos.", "Брати є уважними."],
+	["Las hermanas son responsables.", "Сестри є відповідальними."],
+	["Pedro y Laura son claros.", "Педро і Лаура є зрозумілими."],
+	["Miguel y Juan son atentos.", "Мігель і Хуан є уважними."],
+	["Carlos y Ana son responsables.", "Карлос і Ана є відповідальними."],
+	["María y José son claros.", "Марія і Хосе є зрозумілими."],
+	["Pablo y Sofía son atentos.", "Пабло і Софія є уважними."],
+	["Diego y Elena son responsables.", "Дієго і Елена є відповідальними."],
+	["Javier y Carmen son organizados.", "Хав’єр і Кармен є організованими."],
+	["Alejandro es claro.", "Алехандро є зрозумілим."],
+	["Isabel es responsable.", "Ісабель є відповідальною."],
+	["Roberto es atento.", "Роберто є уважним."],
+	["Beatriz es clara.", "Беатріс є зрозумілою."],
+	["Manuel es atento.", "Мануель є уважним."],
+	["Mónica es responsable.", "Моніка є відповідальною."],
+	["Enrique es puntual.", "Енріке є пунктуальним."],
+	["Victoria es clara.", "Вікторія є зрозумілою."],
+	["Ricardo es responsable.", "Рікардо є відповідальним."],
+	["Gabriela es clara.", "Габріела є зрозумілою."],
+	["Francisco es atento.", "Франсіско є уважним."],
+	["Natalia es responsable.", "Наталія є відповідальною."],
+	["Andrés es puntual.", "Андрес є пунктуальним."],
+	["Isabela es clara.", "Ісабела є зрозумілою."],
+	["Mario es responsable.", "Маріо є відповідальним."],
+	["Claudia es puntual.", "Клаудія є пунктуальною."],
+	["Hugo es atento.", "Уго є уважним."],
+	["Marta es responsable.", "Марта є відповідальною."],
+	["El chico es claro.", "Хлопець є зрозумілим."],
+	["La chica es atenta.", "Дівчина є уважною."],
+	["El niño es responsable.", "Хлопчик є відповідальним."],
+	["La niña es clara.", "Дівчинка є зрозумілою."],
+	["El hermano es atento.", "Брат є уважним."],
+	["La hermana es responsable.", "Сестра є відповідальною."],
+	["La madre es clara.", "Мати є зрозумілою."],
+	["El padre es atento.", "Батько є уважним."],
+	["El médico es responsable.", "Лікар є відповідальним."],
+	["El profesor es claro.", "Вчитель є зрозумілим."],
+	["El estudiante es atento.", "Студент є уважним."],
+	["La amiga es puntual.", "Подруга є пунктуальною."],
+	["El amigo es claro.", "Друг є зрозумілим."],
+	["Yo soy puntual.", "Я є пунктуальним / пунктуальною."],
+	["Yo soy responsable.", "Я є відповідальним / відповідальною."],
+	["Tú eres atento.", "Ти є уважним / уважною."],
+	["Tú eres claro.", "Ти є зрозумілим / зрозумілою."],
+	["Nosotros somos puntuales.", "Ми є пунктуальними."],
+	["Nosotros somos responsables.", "Ми є відповідальними."],
+	["Vosotros sois puntuales.", "Ви є пунктуальними."],
+	["Vosotros sois claros.", "Ви є зрозумілими."],
+	["Ellos son responsables.", "Вони (чол.) є відповідальними."],
+	["Ellas son puntuales.", "Вони (жін.) є пунктуальними."],
+	["Los profesores son puntuales.", "Вчителі є пунктуальними."],
+	["Los estudiantes son claros.", "Студенти є зрозумілими."],
+	["Los médicos son responsables.", "Лікарі є відповідальними."],
+	["Los amigos son puntuales.", "Друзі є пунктуальними."],
+	["Las amigas son claras.", "Подруги є зрозумілими."],
+	["Los colegas son responsables.", "Колеги є відповідальними."],
+	["Los vecinos son atentos.", "Сусіди є уважними."],
+	["Los padres son claros.", "Батьки є зрозумілими."],
+	["Los hermanos son responsables.", "Брати є відповідальними."],
+	["Las hermanas son claras.", "Сестри є зрозумілими."],
+	["Pedro y Laura son puntuales.", "Педро і Лаура є пунктуальними."],
+	["Miguel y Juan son claros.", "Мігель і Хуан є зрозумілими."],
+	["Carlos y Ana son responsables.", "Карлос і Ана є відповідальними."],
+	["María y José son puntuales.", "Марія і Хосе є пунктуальними."],
+	["Pablo y Sofía son claros.", "Пабло і Софія є зрозумілими."],
+	["Diego y Elena son responsables.", "Дієго і Елена є відповідальними."],
+	["Javier y Carmen son puntuales.", "Хав’єр і Кармен є пунктуальними."],
+	["Alejandro es puntual.", "Алехандро є пунктуальним."],
+	["Isabel es clara.", "Ісабель є зрозумілою."],
+	["Roberto es responsable.", "Роберто є відповідальним."],
+	["Beatriz es puntual.", "Беатріс є пунктуальною."],
+	["Manuel es claro.", "Мануель є зрозумілим."],
+	["Mónica es responsable.", "Моніка є відповідальною."],
+	["Enrique es puntual.", "Енріке є пунктуальним."],
+	["Victoria es responsable.", "Вікторія є відповідальною."],
+	["Ricardo es puntual.", "Рікардо є пунктуальним."],
+	["Gabriela es clara.", "Габріела є зрозумілою."],
+	["Francisco es responsable.", "Франсіско є відповідальним."],
+	["Natalia es puntual.", "Наталія є пунктуальною."],
+	["Andrés es responsable.", "Андрес є відповідальним."],
+	["Isabela es clara.", "Ісабела є зрозумілою."],
+	["Mario es puntual.", "Маріо є пунктуальним."],
+	["Claudia es responsable.", "Клаудія є відповідальною."],
+	["Hugo es claro.", "Уго є зрозумілим."],
+	["Marta es puntual.", "Марта є пунктуальною."],
+	["El chico es atento.", "Хлопець є уважним."],
+	["La chica es clara.", "Дівчина є зрозумілою."],
+	["El niño es atento.", "Хлопчик є уважним."],
+	["La niña es responsable.", "Дівчинка є відповідальною."],
+	["El hermano es puntual.", "Брат є пунктуальним."],
+	["La hermana es clara.", "Сестра є зрозумілою."],
+	["La madre es puntual.", "Мати є пунктуальною."],
+	["El padre es claro.", "Батько є зрозумілим."],
+	["El médico es puntual.", "Лікар є пунктуальним."],
+	["El profesor es responsable.", "Вчитель є відповідальним."],
+	["El estudiante es claro.", "Студент є зрозумілим."],
+	["La amiga es responsable.", "Подруга є відповідальною."],
+	["El amigo es puntual.", "Друг є пунктуальним."],
+	["Yo soy atento.", "Я є уважним / уважною."],
+	["Yo soy claro.", "Я є зрозумілим / зрозумілою."],
+	["Tú eres atento.", "Ти є уважним / уважною."],
+	["Tú eres responsable.", "Ти є відповідальним / відповідальною."],
+	["Nosotros somos atentos.", "Ми є уважними."],
+	["Nosotros somos claros.", "Ми є зрозумілими."],
+	["Vosotros sois atentos.", "Ви є уважними."],
+	["Vosotros sois responsables.", "Ви є відповідальними."],
+	["Ellos son atentos.", "Вони (чол.) є уважними."],
+	["Ellas son claras.", "Вони (жін.) є зрозумілими."],
+	["Los profesores son atentos.", "Вчителі є уважними."],
+	["Los estudiantes son responsables.", "Студенти є відповідальними."],
+	["Los médicos son puntuales.", "Лікарі є пунктуальними."],
+	["Los amigos son claros.", "Друзі є зрозумілими."],
+	["Las amigas son responsables.", "Подруги є відповідальними."],
+	["Los colegas son puntuales.", "Колеги є пунктуальними."],
+	["Los vecinos son responsables.", "Сусіди є відповідальними."],
+	["Los padres son atentos.", "Батьки є уважними."],
+	["Los hermanos son claros.", "Брати є зрозумілими."],
+	["Las hermanas son responsables.", "Сестри є відповідальними."],
+	["Pedro y Laura son atentos.", "Педро і Лаура є уважними."],
+	["Miguel y Juan son responsables.", "Мігель і Хуан є відповідальними."],
+	["Carlos y Ana son claros.", "Карлос і Ана є зрозумілими."],
+	["María y José son atentos.", "Марія і Хосе є уважними."],
+	["Pablo y Sofía son responsables.", "Пабло і Софія є відповідальними."],
+	["Diego y Elena son claros.", "Дієго і Елена є зрозумілими."],
+	["Javier y Carmen son atentos.", "Хав’єр і Кармен є уважними."],
+	["Alejandro es responsable.", "Алехандро є відповідальним."],
+	["Isabel es puntual.", "Ісабель є пунктуальною."],
+	["Roberto es claro.", "Роберто є зрозумілим."],
+	["Beatriz es responsable.", "Беатріс є відповідальною."],
+	["Manuel es atento.", "Мануель є уважним."],
+	["Mónica es responsable.", "Моніка є відповідальною."],
+	["Enrique es puntual.", "Енріке є пунктуальним."],
+	["Victoria es clara.", "Вікторія є зрозумілою."],
+	["Ricardo es responsable.", "Рікардо є відповідальним."],
+	["Gabriela es puntual.", "Габріела є пунктуальною."],
+	["Francisco es claro.", "Франсіско є зрозумілим."],
+	["Natalia es responsable.", "Наталія є відповідальною."],
+	["Andrés es puntual.", "Андрес є пунктуальним."],
+	["Isabela es responsable.", "Ісабела є відповідальною."],
+	["Mario es puntual.", "Маріо є пунктуальним."],
+	["Claudia es clara.", "Клаудія є зрозумілою."],
+	["Hugo es responsable.", "Уго є відповідальним."]
   ];
 
-  // 2) Імена/іменники (з іменами для комбінацій)
-  const nouns = [
-    { ua: "Педро", es: "Pedro" },
-    { ua: "Антоніо", es: "Antonio" },
-    { ua: "Анна", es: "Ana" },
-    { ua: "Марія", es: "María" },
-    { ua: "Хуан", es: "Juan" },
-    { ua: "Карлос", es: "Carlos" },
-    { ua: "Міґель", es: "Miguel" },
-    { ua: "Луїс", es: "Luis" },
-    { ua: "Хосе", es: "José" },
-    { ua: "Пабло", es: "Pablo" },
-    { ua: "Дієго", es: "Diego" },
-    { ua: "Хав’єр", es: "Javier" },
-    { ua: "Рауль", es: "Raúl" },
-    { ua: "Фернандо", es: "Fernando" },
-    { ua: "Альваро", es: "Álvaro" },
-    { ua: "Сергіо", es: "Sergio" },
-    { ua: "Лаура", es: "Laura" },
-    { ua: "Сара", es: "Sara" },
-    { ua: "Кармен", es: "Carmen" },
-    { ua: "Лусія", es: "Lucía" },
-    { ua: "Елена", es: "Elena" },
-    { ua: "Софія", es: "Sofía" },
-    { ua: "Паола", es: "Paola" },
-    { ua: "Валерія", es: "Valeria" },
-
-    { ua: "вчитель", es: "profesor" },
-    { ua: "вчителька", es: "profesora" },
-    { ua: "хлопець", es: "chico" },
-    { ua: "дівчина", es: "chica" },
-    { ua: "студент", es: "estudiante" },
-    { ua: "лікар", es: "médico" },
-    { ua: "друг", es: "amigo" },
-    { ua: "подруга", es: "amiga" }
-  ];
-
-  // 3) Займенники та ser
-  const pronouns = [
-    { key: "yo", ua: "я", es: "yo", ser: "soy" },
-    { key: "tu", ua: "ти", es: "tú", ser: "eres" },
-    { key: "el", ua: "він", es: "él", ser: "es" },
-    { key: "ella", ua: "вона", es: "ella", ser: "es" },
-    { key: "nosotros", ua: "ми (чол.)", es: "nosotros", ser: "somos" },
-    { key: "nosotras", ua: "ми (жін.)", es: "nosotras", ser: "somos" },
-    { key: "ellos", ua: "вони (чол.)", es: "ellos", ser: "son" },
-    { key: "ellas", ua: "вони (жін.)", es: "ellas", ser: "son" },
-    { key: "ustedes", ua: "ви (офіційно)", es: "ustedes", ser: "son" }
-  ];
-
-  const serForms = [
-    { key: "soy", label: "soy" },
-    { key: "eres", label: "eres" },
-    { key: "es", label: "es" },
-    { key: "somos", label: "somos" },
-    { key: "son", label: "son" }
-  ];
-
-  // 4) Шаблони речень
-  const sentenceTemplates = [
-    { ua: "Я Марія.", type: "noun", correct: { pronKey: "yo", nounEs: "María" } },
-    { ua: "Вони хлопці.", type: "noun", correct: { pronKey: "ellos", nounEs: "chicos" } },
-    { ua: "Він вчитель.", type: "noun", correct: { pronKey: "el", nounEs: "profesor" } },
-
-    { ua: "Я розумний.", type: "adj", correct: { pronKey: "yo", adjEs: "inteligente" } },
-    { ua: "Ти високий.", type: "adj", correct: { pronKey: "tu", adjEs: "alto" } },
-    { ua: "Вона серйозна.", type: "adj", correct: { pronKey: "ella", adjEs: "serio" } },
-    { ua: "Ми пунктуальні.", type: "adj", correct: { pronKey: "nosotros", adjEs: "puntual" } },
-    { ua: "Вони смішні.", type: "adj", correct: { pronKey: "ellos", adjEs: "gracioso" } },
-    { ua: "Він відповідальний.", type: "adj", correct: { pronKey: "el", adjEs: "responsable" } },
-    { ua: "Вона привітна.", type: "adj", correct: { pronKey: "ella", adjEs: "amable" } }
-  ];
-
-  // 5) Утиліти
-  function randInt(max) { return Math.floor(Math.random() * max); }
-  function sample(arr) { return arr[randInt(arr.length)]; }
+  // ==========================================================
+  // 2) УТИЛІТИ: random / shuffle / tokenize
+  // ==========================================================
   function shuffle(arr) {
     const a = arr.slice();
     for (let i = a.length - 1; i > 0; i--) {
@@ -181,13 +800,106 @@
     return a;
   }
 
-  // 6) Стан
-  let current = null;
-  let step = 1;
-  let pickedPron = null;
-  let pickedSer = null;
-  let pickedWord = null;
+  function tokenizeSpanish(sentence) {
+    const trimmed = sentence.trim();
+    const punct = /[.!?]$/.test(trimmed) ? trimmed.slice(-1) : "";
+    const core = punct ? trimmed.slice(0, -1) : trimmed;
+    const tokens = core.split(/\s+/).filter(Boolean);
+    return { tokens, punct };
+  }
+
+  // ==========================================================
+  // 3) КЛАСИФІКАЦІЯ ТОКЕНІВ
+  // ==========================================================
+  const ARTICLES = new Set(["el","la","los","las","un","una","unos","unas"]);
+  const CONJ = new Set(["y","e","o","u"]);
+  const SER_FORMS = new Set(["soy","eres","es","somos","sois","son"]);
+  const PRONOUNS = new Set(["yo","tú","tu","él","ella","nosotros","nosotras","vosotros","vosotras","ellos","ellas","usted","ustedes"]);
+
+  function lower(w){ return (w||"").toString().trim().toLowerCase(); }
+  function isCapitalized(w){ return /^[A-ZÁÉÍÓÚÑÜ]/.test(w||""); }
+
+  function classifyToken(token, positionHint=null) {
+    const t = (token||"").trim();
+    const tL = lower(t);
+
+    if (ARTICLES.has(tL)) return "article";
+    if (CONJ.has(tL)) return "conj";
+    if (SER_FORMS.has(tL)) return "ser";
+    if (PRONOUNS.has(tL)) return "pron";
+
+    if (isCapitalized(t) && positionHint !== "article") return "name";
+    if (positionHint === "nounLike") return "noun";
+    return "pred";
+  }
+
+  // ==========================================================
+  // 4) ПУЛИ СЛІВ ДЛЯ ВІДВОЛІКАЮЧИХ ВАРІАНТІВ
+  // ==========================================================
+  const pools = {
+    article: new Set(["Los","Las","El","La","Un","Una"]),
+    conj: new Set(["y"]),
+    ser: new Set(["soy","eres","es","somos","sois","son"]),
+    pron: new Set(["Yo","Tú","Éл","Ella","Nosotros","Nosotras","Vosotros","Ellos","Ellas"]),
+    name: new Set(),
+    noun: new Set(),
+    pred: new Set()
+  };
+
+  function addToPool(cat, token) {
+    if (!token) return;
+    pools[cat].add(token);
+  }
+
+  function buildPoolsFromPairs() {
+    for (const [es] of PAIRS) {
+      const { tokens } = tokenizeSpanish(es);
+      for (let i = 0; i < tokens.length; i++) {
+        const tok = tokens[i];
+        const prev = i > 0 ? tokens[i-1] : null;
+        const prevCat = prev ? classifyToken(prev) : null;
+
+        let hint = null;
+        if (i === 1 && prevCat === "article") hint = "nounLike";
+
+        const cat = classifyToken(tok, hint);
+        addToPool(cat, tok);
+
+        if (i > 0 && classifyToken(tokens[i-1]) === "article") addToPool("noun", tok);
+        if (i > 0 && classifyToken(tokens[i-1]) === "ser") addToPool("pred", tok);
+      }
+    }
+  }
+  buildPoolsFromPairs();
+
+  function allTokensPool() {
+    const s = new Set();
+    Object.values(pools).forEach(set => set.forEach(x => s.add(x)));
+    return Array.from(s);
+  }
+
+  // ==========================================================
+  // 5) ПОРЯДОК РЕЧЕНЬ (рандом, без повторів, поки не закінчаться)
+  // ==========================================================
+  let order = [];
+  let orderIdx = 0;
+
+  function refillOrder() {
+    order = shuffle(PAIRS.map((_, i) => i));
+    orderIdx = 0;
+  }
+  refillOrder();
+
+  // ==========================================================
+  // 6) UI STATE + ЛІЧИЛЬНИК ПРАВИЛЬНИХ (СТРІК)
+  // ==========================================================
+  let current = null;      // { es, ua, tokens, punct }
+  let step = 0;
+  let picked = [];
   let isSolved = false;
+
+  let streak = 0;          // +1 за правильне речення; 0 при будь-якій помилці
+  let streakAwarded = false; // щоб не додати +1 двічі на одне й те саме речення
 
   const uaTextEl = document.getElementById("uaText");
   const esSentenceEl = document.getElementById("esSentence");
@@ -195,106 +907,114 @@
   const feedbackEl = document.getElementById("feedback");
   const progressEl = document.getElementById("progress");
 
+  const scoreEl = document.getElementById("score");
+
   const nextBtn = document.getElementById("nextBtn");
   const toggleAnswerBtn = document.getElementById("toggleAnswerBtn");
-
   const answerBoxEl = document.getElementById("answerBox");
   const answerTextEl = document.getElementById("answerText");
 
-  function correctWordForCurrent() {
-    return (current.type === "adj") ? current.correct.adjEs : current.correct.nounEs;
+  function updateScore() {
+    scoreEl.textContent = String(streak);
   }
 
-  function correctSentenceEs() {
-    const p = pronouns.find(x => x.key === current.correct.pronKey);
-    const w = correctWordForCurrent();
-    return `${p.es} ${p.ser} ${w}.`;
+  function resetStreakToZero() {
+    if (streak !== 0) {
+      streak = 0;
+      updateScore();
+    } else {
+      // навіть якщо вже 0, вимога каже "оновлюється до 0" — просто оновимо UI
+      updateScore();
+    }
   }
 
+  // ==========================================================
+  // 7) ВІДОБРАЖЕННЯ РЕЧЕННЯ
+  // ==========================================================
+  function buildUserSentence() {
+    if (!picked.length) return "—";
+    const core = picked.join(" ");
+    return core + (current.punct || ".");
+  }
+
+  function correctSentence() {
+    return current.es;
+  }
+
+  function showAnswer() {
+    answerTextEl.textContent = correctSentence();
+    answerBoxEl.style.display = "block";
+    toggleAnswerBtn.textContent = "Сховати відповідь";
+    toggleAnswerBtn.dataset.state = "shown";
+  }
   function hideAnswer() {
     answerBoxEl.style.display = "none";
     toggleAnswerBtn.textContent = "Показати відповідь";
     toggleAnswerBtn.dataset.state = "hidden";
   }
 
-  function showAnswer() {
-    answerTextEl.textContent = correctSentenceEs();
-    answerBoxEl.style.display = "block";
-    toggleAnswerBtn.textContent = "Сховати відповідь";
-    toggleAnswerBtn.dataset.state = "shown";
-  }
-
-  function resetPicks(keepSentence=false) {
-    step = 1;
-    pickedPron = null;
-    pickedSer = null;
-    pickedWord = null;
+  function resetTask(keepSentence = true) {
+    step = 0;
+    picked = [];
     isSolved = false;
+    streakAwarded = false;
 
     feedbackEl.textContent = "";
     feedbackEl.className = "feedback";
     nextBtn.disabled = true;
-
     hideAnswer();
-    answerTextEl.textContent = "—";
 
     if (!keepSentence) current = null;
     render();
   }
 
-  function newTask() {
-    current = sample(sentenceTemplates);
-    resetPicks(true);
-    render();
+  function loadNextSentence() {
+    if (orderIdx >= order.length) refillOrder();
+    const idx = order[orderIdx++];
+    const [es, ua] = PAIRS[idx];
+    const { tokens, punct } = tokenizeSpanish(es);
+    current = { es, ua, tokens, punct };
+    resetTask(true);
   }
 
-  // Побудова речення з вибору
-  function buildSentence() {
-    const parts = [];
-    if (pickedPron) parts.push(pickedPron.es);
-    if (pickedSer) parts.push(pickedSer.key);
-    if (pickedWord) parts.push(pickedWord);
-    return parts.length ? parts.join(" ") + "." : "—";
+  // ==========================================================
+  // 8) ВАРІАНТИ (до 6) ДЛЯ ПОТОЧНОГО КРОКУ
+  // ==========================================================
+  function unique(arr) {
+    return Array.from(new Set(arr));
   }
 
-  // Перевірка: БЕЗ автопереходу (лише кнопка "Далі")
-  function checkIfCompleteAndValidate() {
-    if (!(pickedPron && pickedSer && pickedWord)) return;
+  function pickDistractors(cat, correctToken, count) {
+    const poolArr = Array.from(pools[cat] || []);
+    const filtered = poolArr.filter(x => x !== correctToken);
 
-    const correctPron = pronouns.find(p => p.key === current.correct.pronKey);
-    const correctSer = correctPron.ser;
-    const correctWord = correctWordForCurrent();
+    const general = allTokensPool().filter(x => x !== correctToken);
 
-    const ok = (pickedPron.key === correctPron.key) && (pickedSer.key === correctSer) && (pickedWord === correctWord);
-
-    if (ok) {
-      feedbackEl.textContent = "Правильно!";
-      feedbackEl.className = "feedback ok";
-      isSolved = true;
-      nextBtn.disabled = false;
-    } else {
-      feedbackEl.textContent = "Неправильно. Спробуй ще раз.";
-      feedbackEl.className = "feedback bad";
-      isSolved = false;
-      nextBtn.disabled = true;
-    }
+    const mixed = unique(shuffle(filtered).concat(shuffle(general)));
+    return mixed.slice(0, count);
   }
 
-  // Рендер
-  function render() {
-    if (!current) { newTask(); return; }
-
-    uaTextEl.textContent = current.ua;
-    esSentenceEl.textContent = buildSentence();
-    progressEl.textContent = `Крок ${step}/3`;
-
-    stepArea.innerHTML = "";
-    if (step === 1) renderStep1();
-    if (step === 2) renderStep2();
-    if (step === 3) renderStep3();
+  function tokenCategoryAtPosition(tokens, i) {
+    const prev = i > 0 ? tokens[i-1] : null;
+    if (prev && classifyToken(prev) === "article") return "noun";
+    if (prev && classifyToken(prev) === "ser") return "pred";
+    return classifyToken(tokens[i]);
   }
 
-  function renderChoices(title, choices, onPick) {
+  function buildOptionsForStep() {
+    const correct = current.tokens[step];
+    const cat = tokenCategoryAtPosition(current.tokens, step);
+
+    const distractors = pickDistractors(cat, correct, 5);
+    const options = shuffle([correct, ...distractors]).slice(0, 6);
+
+    return { options, cat, correct };
+  }
+
+  // ==========================================================
+  // 9) RENDER
+  // ==========================================================
+  function renderChoices(title, options, onPick) {
     const titleEl = document.createElement("div");
     titleEl.className = "stepTitle";
     titleEl.textContent = title;
@@ -303,99 +1023,92 @@
     const row = document.createElement("div");
     row.className = "row";
 
-    choices.forEach(ch => {
+    options.forEach(opt => {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "choice";
-      btn.textContent = ch.label;
-      if (ch.selected) btn.classList.add("selected");
-      btn.addEventListener("click", () => onPick(ch));
+      btn.textContent = opt;
+      btn.addEventListener("click", () => onPick(opt));
       row.appendChild(btn);
     });
 
     stepArea.appendChild(row);
   }
 
-  function renderStep1() {
-    const correctPronKey = current.correct.pronKey;
-    const correctPron = pronouns.find(p => p.key === correctPronKey);
+  function render() {
+    if (!current) { loadNextSentence(); return; }
 
-    const pool = pronouns.filter(p => p.key !== correctPronKey);
-    const distractors = shuffle(pool).slice(0, 4);
+    uaTextEl.textContent = current.ua;
+    esSentenceEl.textContent = buildUserSentence();
 
-    const options = shuffle([correctPron, ...distractors]).map(p => ({
-      label: p.es,
-      value: p,
-      selected: pickedPron && pickedPron.key === p.key
-    }));
+    const totalSteps = current.tokens.length;
+    progressEl.textContent = `Крок ${Math.min(step + 1, totalSteps)}/${totalSteps}`;
 
-    renderChoices("1) Обери займенник", options, (ch) => {
+    stepArea.innerHTML = "";
+
+    if (isSolved) {
+      const done = document.createElement("div");
+      done.className = "stepTitle";
+      done.textContent = "Речення складено. Натисни «Далі» для наступного.";
+      stepArea.appendChild(done);
+      return;
+    }
+
+    const { options, cat } = buildOptionsForStep();
+    const title = `Крок ${step + 1}: обери слово (${cat})`;
+
+    renderChoices(title, options, (pickedToken) => {
       if (isSolved) return;
-      pickedPron = ch.value;
-      step = 2;
-      feedbackEl.textContent = "";
-      feedbackEl.className = "feedback";
-      render();
+
+      const correct = current.tokens[step];
+
+      if (pickedToken === correct) {
+        picked.push(pickedToken);
+        step++;
+
+        feedbackEl.textContent = "";
+        feedbackEl.className = "feedback";
+
+        if (step >= current.tokens.length) {
+          const user = picked.join(" ") + (current.punct || ".");
+          const ok = (user === current.es);
+
+          if (ok) {
+            isSolved = true;
+            feedbackEl.textContent = "Правильно!";
+            feedbackEl.className = "feedback ok";
+            nextBtn.disabled = false;
+
+            // ВИМОГА: +1 одразу після правильного складання (до натискання "Далі")
+            if (!streakAwarded) {
+              streak += 1;
+              streakAwarded = true;
+              updateScore();
+            }
+          } else {
+            // страхувальна гілка
+            resetStreakToZero();
+            feedbackEl.textContent = "Майже. Є різниця з еталоном — спробуй ще раз.";
+            feedbackEl.className = "feedback bad";
+            nextBtn.disabled = true;
+          }
+        }
+
+        render();
+      } else {
+        // ВИМОГА: будь-яка помилка -> лічильник = 0
+        resetStreakToZero();
+        feedbackEl.textContent = "Неправильно. Спробуй ще раз.";
+        feedbackEl.className = "feedback bad";
+      }
     });
   }
 
-  function renderStep2() {
-    const correctPron = pronouns.find(p => p.key === current.correct.pronKey);
-    const correctSerKey = correctPron.ser;
-
-    const correctSer = serForms.find(s => s.key === correctSerKey);
-    const pool = serForms.filter(s => s.key !== correctSerKey);
-    const distractors = shuffle(pool).slice(0, 3);
-
-    const options = shuffle([correctSer, ...distractors]).map(s => ({
-      label: s.label,
-      value: s,
-      selected: pickedSer && pickedSer.key === s.key
-    }));
-
-    renderChoices("2) Обери правильну форму ser", options, (ch) => {
-      if (isSolved) return;
-      pickedSer = ch.value;
-      step = 3;
-      feedbackEl.textContent = "";
-      feedbackEl.className = "feedback";
-      render();
-    });
-  }
-
-  function renderStep3() {
-    // КРОК 3: рівно 6 варіантів (1 правильний + 5 випадкових)
-    const correctWord = correctWordForCurrent();
-
-    const nounPool = nouns.map(n => n.es);
-    if (!nounPool.includes("chicos")) nounPool.push("chicos");
-
-    const wordPool = Array.from(new Set([...adjectives, ...nounPool]))
-      .filter(w => w !== correctWord);
-
-    const distractors = shuffle(wordPool).slice(0, 5);
-
-    const options = shuffle([correctWord, ...distractors]).map(w => ({
-      label: w,
-      value: w,
-      selected: pickedWord === w
-    }));
-
-    renderChoices("3) Обери слово", options, (ch) => {
-      if (isSolved) return;
-      pickedWord = ch.value;
-      esSentenceEl.textContent = buildSentence();
-      checkIfCompleteAndValidate();
-      render();
-    });
-  }
-
-  // Кнопки
-  document.getElementById("resetBtn").addEventListener("click", () => resetPicks(true));
-
-  document.getElementById("skipBtn").addEventListener("click", () => {
-    newTask();
-  });
+  // ==========================================================
+  // 10) КНОПКИ
+  // ==========================================================
+  document.getElementById("resetBtn").addEventListener("click", () => resetTask(true));
+  document.getElementById("skipBtn").addEventListener("click", () => loadNextSentence());
 
   toggleAnswerBtn.addEventListener("click", () => {
     const state = toggleAnswerBtn.dataset.state || "hidden";
@@ -405,14 +1118,13 @@
 
   nextBtn.addEventListener("click", () => {
     if (!isSolved) return;
-    newTask();
+    loadNextSentence();
   });
 
-  // ініціалізація стану кнопки відповіді
+  // init
+  updateScore();
   hideAnswer();
-
-  // старт
-  newTask();
+  loadNextSentence();
 </script>
 </body>
 </html>
